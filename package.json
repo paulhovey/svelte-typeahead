@@ -2,8 +2,8 @@
   "name": "svelte-typeahead",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "Accessible, fuzzy search typeahead component",
-  "author": "Eric Liu (https://github.com/metonym)",
+  "description": "Accessible, fuzzy search typeahead component that uses Bulma css names",
+  "author": "Eric Liu (https://github.com/paulhovey)",
   "svelte": "./src/index.js",
   "main": "./lib/index.js",
   "module": "./lib/index.mjs",
@@ -31,10 +31,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/metonym/svelte-typeahead.git"
+    "url": "https://github.com/paulhovey/svelte-typeahead.git"
   },
-  "homepage": "https://github.com/metonym/svelte-typeahead",
-  "bugs": "https://github.com/metonym/svelte-typeahead/issues",
+  "homepage": "https://github.com/paulhovey/svelte-typeahead",
+  "bugs": "https://github.com/paulhovey/svelte-typeahead/issues",
   "keywords": [
     "svelte",
     "svelte component",

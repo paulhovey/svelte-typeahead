@@ -51,43 +51,12 @@
 </script>
 
 <style>
+  .display-block {
+    display: block;
+  }
+  
   .svelte-typeahead {
     position: relative;
-  }
-
-  ul {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    padding: 0.5rem 0;
-    list-style: none;
-    background-color: #fff;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    border-bottom-right-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
-  }
-
-  li {
-    padding: 0.75rem 1rem;
-    font-size: 1.25rem;
-    cursor: pointer;
-  }
-
-  li:not(:last-of-type) {
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  li:hover {
-    background-color: #e5e5e5;
-  }
-
-  .selected {
-    background-color: #e5e5e5;
-  }
-
-  .selected:hover {
-    background-color: #cacaca;
   }
 
   :global(.svelte-typeahead.dropdown .svelte-search input) {
@@ -126,8 +95,8 @@
   role="combobox"
   aria-haspopup="listbox"
   aria-owns="{id}-listbox"
-  class="svelte-typeahead"
-  class:dropdown="{results.length > 0}"
+  class="dropdown"
+  
   aria-expanded="{!hideDropdown && results.length > 0}"
   id="{id}"
 >
@@ -176,29 +145,24 @@
       }
     }}"
   />
-  {#if !hideDropdown && results.length > 0}
-    <ul
-      class="svelte-typeahead-list"
-      role="listbox"
-      aria-labelledby=""
-      id="{id}-listbox"
-    >
-      {#each results as result, i}
-        <li
-          role="option"
-          id="{id}-result"
-          class:selected="{selectedIndex === i}"
-          aria-selected="{selectedIndex === i}"
-          on:click="{() => {
-            selectedIndex = i;
-            select();
-          }}"
-        >
-          <slot result="{result}">
-            {@html result.string}
-          </slot>
-        </li>
-      {/each}
-    </ul>
-  {/if}
+
+  <div class="dropdown-menu" class:display-block="{!hideDropdown}" id="{id}-listbox" role="menu">
+    {#if !hideDropdown && results.length > 0}
+        <div class="dropdown-content">
+          {#each results as result, i}
+            <a id="{id}-result"
+               class="dropdown-item"
+               class:is-active="{selectedIndex === i}"
+               aria-selected="{selectedIndex === i}"
+               on:click="{() => {
+                 selectedIndex = i;
+                 select();
+               }}"
+              >
+                {@html result.string}
+            </a>
+          {/each}
+        </div>
+    {/if}
+  </div>
 </div>

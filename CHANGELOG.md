@@ -1,3 +1,7 @@
+# Forked Changelog:
+
+## Based on [0.2.0](https://github.com/metonym/svelte-typeahead/releases/tag/v0.2.0) - Modified source to use [Bulma dropdown styling](https://bulma.io/documentation/components/dropdown/) - 2020-11-28
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
