@@ -37,6 +37,12 @@
   /** Set to `true` to re-focus the input after selecting a result */
   export let focusAfterSelect = false;
 
+  /**
+   * Specify the maximum number of results to return
+   * @type {number}
+   */
+  export let limit = Infinity;
+
   import fuzzy from "fuzzy";
   import Search from "svelte-search";
   import { tick, createEventDispatcher, afterUpdate } from "svelte";
@@ -88,6 +94,7 @@
   $: results = fuzzy
     .filter(value, data, options)
     .filter(({ score }) => score > 0)
+    .slice(0, limit)
     .filter((result) => !filter(result.original))
     .map((result) => ({ ...result, disabled: disable(result.original) }));
   $: resultsId = results.map((result) => extract(result.original)).join("");
@@ -95,7 +102,12 @@
 
 <svelte:window
   on:click={({ target }) => {
-    if (!hideDropdown && results.length > 0 && comboboxRef && !comboboxRef.contains(target)) {
+    if (
+      !hideDropdown &&
+      results.length > 0 &&
+      comboboxRef &&
+      !comboboxRef.contains(target)
+    ) {
       hideDropdown = true;
     }
   }}
@@ -109,15 +121,21 @@
   aria-owns="{id}-listbox"
   class="dropdown"
   aria-expanded="{!hideDropdown && results.length > 0}"
-  id="{id}"
+  id="{id}-typeahead"
 >
   <Search
+    {id}
+    removeFormAriaAttributes={true}
     {...$$restProps}
     bind:ref={searchRef}
     aria-autocomplete="list"
     aria-controls="{id}-listbox"
     aria-labelledby="{id}-label"
-    aria-activedescendant=""
+    aria-activedescendant={selectedIndex >= 0 &&
+    !hideDropdown &&
+    results.length > 0
+      ? `${id}-result-${selectedIndex}`
+      : null}
     bind:value
     on:type
     on:input
@@ -134,33 +152,34 @@
     on:keydown
     on:keydown={(e) => {
       switch (e.key) {
-        case 'Enter':
+        case "Enter":
           select();
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           selectedIndex += 1;
           if (selectedIndex === results.length) {
             selectedIndex = 0;
           }
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           selectedIndex -= 1;
           if (selectedIndex < 0) {
             selectedIndex = results.length - 1;
           }
           break;
-        case 'Escape':
+        case "Escape":
           e.preventDefault();
-          value = '';
+          value = "";
           searchRef.focus();
           hideDropdown = true;
           break;
       }
     }}
   />
-  <div class="dropdown-menu" class:display-block="{!hideDropdown}" id="{id}-listbox" role="menu">
+
+  <div class="dropdown-menu svelte-typeahead-list" class:display-block="{!hideDropdown}" id="{id}-listbox" role="menu">
     {#if !hideDropdown && results.length > 0}
         <div class="dropdown-content">
           {#each results as result, i}
@@ -176,7 +195,9 @@
                  }
                }}"
               >
+              <slot {result} index={i}>
                 {@html result.string}
+              </slot>
             </a>
           {/each}
         </div>
