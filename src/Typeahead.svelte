@@ -11,7 +11,7 @@
   export let value = "";
 
   /** @type {Item[]} */
-  export let data = [];
+  export let datafile = "/lunr-index.json";
 
   /** @type {(item: Item) => Item} */
   export let extract = (item) => item;
@@ -43,9 +43,9 @@
    */
   export let limit = Infinity;
 
-  import fuzzy from "fuzzy";
+  import lunr from 'lunr';
   import Search from "svelte-search";
-  import { tick, createEventDispatcher, afterUpdate } from "svelte";
+  import { tick, createEventDispatcher, afterUpdate, onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -54,6 +54,23 @@
   let hideDropdown = false;
   let selectedIndex = -1;
   let prevResults = "";
+
+  var lunrIdx;
+
+  // load lunr index
+  onMount(() => {
+    (async () => {
+      console.log('loading lunr index at ', datafile);
+      try {
+        const response = await fetch(datafile);
+        const data = await response.json();
+        lunrIdx = lunr.Index.load(JSON.parse(data));
+      } catch (error) {
+        console.error('error loading lunr index: ', error);
+      }
+    })();
+  });
+  
 
   afterUpdate(() => {
     if (prevResults !== resultsId && autoselect) {
@@ -91,12 +108,13 @@
   }
 
   $: options = { pre: "<mark>", post: "</mark>", extract };
-  $: results = fuzzy
-    .filter(value, data, options)
-    .filter(({ score }) => score > 0)
-    .slice(0, limit)
-    .filter((result) => !filter(result.original))
-    .map((result) => ({ ...result, disabled: disable(result.original) }));
+  $: results = lunrIdx.search(value);
+  // $: results = fuzzy
+  //   .filter(value, data, options)
+  //   .filter(({ score }) => score > 0)
+  //   .slice(0, limit)
+  //   .filter((result) => !filter(result.original))
+  //   .map((result) => ({ ...result, disabled: disable(result.original) }));
   $: resultsId = results.map((result) => extract(result.original)).join("");
 </script>
 
